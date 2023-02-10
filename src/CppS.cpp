@@ -2,7 +2,8 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-double CppS(int n,NumericMatrix Kz, NumericVector Wz, NumericMatrix Kyz, NumericVector Wyz, List L){
+double CppS(int n,NumericMatrix Kz, NumericVector Wz,
+            NumericMatrix Kyz, NumericVector Wyz, List L){
   double T = 0;
   for(int p = 0; p<n; p++){
     NumericMatrix s(n,n);
@@ -28,24 +29,26 @@ NumericMatrix  rowcolsampler(NumericMatrix A, NumericVector s){
   NumericMatrix B(n,n);
   for(int k=0;k<n;k++){
     for(int l=0; l<n;l++){
-      B(k,l) = A(s(k),s(l));
+      B(k,l) = A(s(k)-1,s(l)-1);
     }
   }
   return(B);
 }
 
 //[[Rcpp::export]]
-NumericVector resample(int n,NumericMatrix Kz, NumericVector Wz,NumericMatrix Kyz, NumericVector Wyz, List L, NumericMatrix Pi){
+NumericVector resample(int n,NumericMatrix Kz, NumericVector Wz,
+                       NumericMatrix Kyz, NumericVector Wyz, List L,
+                       NumericMatrix Pi){
   int R = Pi.ncol();
   NumericVector T(R);
   for(int i = 0; i<R; i++){
     NumericVector s = Pi(_,i);
     List L1(n);
     for(int j = 0; j<n;j++){
-      NumericMatrix A = L(s(j));
-      L1(j) = rowcolsampler(A,s);
+      NumericMatrix A = L[s(j)-1];
+      L1[j] = rowcolsampler(A,s);
     }
-    T(i) = CppS(n,Kz,Wz,Kyz,Wyz,L1);
+    T[i] = CppS(n,Kz,Wz,Kyz,Wyz,L1);
   }
   return(T);
 }

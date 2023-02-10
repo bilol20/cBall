@@ -5,6 +5,10 @@ CppS <- function(n, Kz, Wz, Kyz, Wyz, L) {
     .Call(`_cBall_CppS`, n, Kz, Wz, Kyz, Wyz, L)
 }
 
+rowcolsampler <- function(A, s) {
+    .Call(`_cBall_rowcolsampler`, A, s)
+}
+
 resample <- function(n, Kz, Wz, Kyz, Wyz, L, Pi) {
     .Call(`_cBall_resample`, n, Kz, Wz, Kyz, Wyz, L, Pi)
 }
