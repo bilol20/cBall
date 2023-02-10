@@ -5,3 +5,7 @@ CppS <- function(n, Kz, Wz, Kyz, Wyz, L) {
     .Call(`_cBall_CppS`, n, Kz, Wz, Kyz, Wyz, L)
 }
 
+resample <- function(n, Kz, Wz, Kyz, Wyz, L, Pi) {
+    .Call(`_cBall_resample`, n, Kz, Wz, Kyz, Wyz, L, Pi)
+}
+

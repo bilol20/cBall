@@ -48,17 +48,8 @@ L = lapply(1:n, function(i){
   })
 })
 D = CppS(n,Kz,Wz,Kyz,Wyz,L)
-D1 = replicate(R,{
-  s = numeric(n)
-  for(i in 1:n){
-    s[i] = sample(1:n,1,prob = Kz[i,]/Wz[i])
-  }
-  L1 = list()
-  for(i in 1:n){
-    L1[[i]] = L[[s[i]]][s,s]
-  }
-  CppS(n,Kz,Wz,Kyz,Wyz,L1)
-  })
+Pi = replicate(R,{sapply(1:n, function(i) sample(1:n, 1, prob = Kz[i,]/Wz[i]))})
+D1 = resample(n,Kz,Wz,Kyz,Wyz,L,Pi)
 pval = (sum(D1>D)+1)/(R+1)
 return(pval)
 }

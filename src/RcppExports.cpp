@@ -26,9 +26,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// resample
+NumericVector resample(int n, NumericMatrix Kz, NumericVector Wz, NumericMatrix Kyz, NumericVector Wyz, List L, NumericMatrix Pi);
+RcppExport SEXP _cBall_resample(SEXP nSEXP, SEXP KzSEXP, SEXP WzSEXP, SEXP KyzSEXP, SEXP WyzSEXP, SEXP LSEXP, SEXP PiSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Kz(KzSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Wz(WzSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Kyz(KyzSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Wyz(WyzSEXP);
+    Rcpp::traits::input_parameter< List >::type L(LSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pi(PiSEXP);
+    rcpp_result_gen = Rcpp::wrap(resample(n, Kz, Wz, Kyz, Wyz, L, Pi));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_cBall_CppS", (DL_FUNC) &_cBall_CppS, 6},
+    {"_cBall_resample", (DL_FUNC) &_cBall_resample, 7},
     {NULL, NULL, 0}
 };
 
