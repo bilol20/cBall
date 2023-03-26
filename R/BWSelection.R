@@ -171,15 +171,6 @@ obj.eng = function(h,X,Y){
       for(k in 1:n){
         if(k!=i & k!=j){
           if( Ind[k] == 1){
-            y1 = D[i,]
-            m1 = min(y1[-i])
-            f1 = which(y1==m1)
-            y2 = D[j,]
-            m2 = min(y2[-j])
-            f2 = which(y2==m2)
-            if(f1==f2){
-              A2 = A2 + Dx[i,j]
-            }else{
               A2 = A2
             }
           }else{
