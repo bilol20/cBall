@@ -36,9 +36,7 @@ obj.eng = function(h,X,Y){
     for(j in 1:n){
       for(k in 1:n){
         if(k!=i & k!=j){
-          if( Ind[i] == 1| Ind[j]==1){
-            g = which(Ind[c(i,j)]==1)
-            if(length(g)==2){
+          if( Ind[i] == 1 & Ind[j]==1){
               y1 = D[i,]
               m1 = min(y1[-i])
               f1 = which(y1==m1)
@@ -48,32 +46,30 @@ obj.eng = function(h,X,Y){
               f2 = which(y2==m2)
 
               A2 = A2 + as.integer(i==f1)*as.integer(j==f2)*Dx[i,j]
-            }else{
-              if(g==1){
-                y1 = D[i,]
-                m1 = min(y1[-i])
-                f1 = which(y1==m1)
-                W2 = K[j,]
+          }
+          if(Ind[i] == 1 & Ind[j]!=1){
+            y1 = D[i,]
+            m1 = min(y1[-i])
+            f1 = which(y1==m1)
 
-                A2 = A2 + as.integer(i==f1)*K[j,k]*Dx[i,j]/(sum(W2[-j]))
-              }else{
-                y1 = D[j,]
-                m1 = min(y1[-j])
-                f1 = which(y1==m1)
-                W2 = K[i,]
+            W2 = K[j,]
+            A2 = A2 + as.integer(i==f1)*K[j,k]*Dx[i,j]/(sum(W2[-j]))
+          }
+          if(Ind[j] == 1 & Ind[i]!=1){
+            y1 = D[j,]
+            m1 = min(y1[-j])
+            f1 = which(y1==m1)
 
-                A2 = A2 + as.integer(j==f1)*K[i,k]*Dx[i,j]/(sum(W2[-i]))
-              }
-            }
+            W2 = K[i,]
+            A2 = A2 + as.integer(j==f1)*K[i,k]*Dx[i,j]/(sum(W2[-i]))
+          }
+          if(Ind[j] == 1 & Ind[i]!=1){
 
-          }else{
             W1 = K[i,]
             W2 = K[j,]
 
             A2 = A2 + K[i,k]*K[j,k]*Dx[i,j]/((sum(W1[-i])*sum(W2[-j])))
           }
-        }else{
-          A2 = A2
         }
       }
     }
