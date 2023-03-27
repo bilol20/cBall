@@ -14,13 +14,11 @@ ker.normal = function(x,s)
 
 
 
-cBD = function(X,Y,Z, kernel = c("normal", "epanenchnikov")){
+cBD = function(X,Y,Z, hz, hyz, kernel = c("normal", "epanenchnikov")){
   n = nrow(X)
   Dx = as.matrix(dist(X))
   Dz = dist(Z)
   Dyz = dist(cbind(Y,Z))
-  hz = bw.selection(X,Z)
-  hyz = bw.selection(X,cbind(Y,Z))
   if(kernel == "normal"){
     ker = ker.normal
   }else{
@@ -62,27 +60,37 @@ cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
     }
   }
 
-  Dx = as.matrix(dist(X))
-  Dz = dist(Z)
-  Dyz = dist(cbind(Y,Z))
-  hz =  bw.selection(X, Z, p1 = 0.1, p2 = 0.5)
-  hyz = bw.selection(X, cbind(Y,Z), p1 = 0.1, p2 = 0.5)
+  s = sample(n, size = as.integer(0.5*n))
+  Xtr = X[s,]
+  Ytr = Y[s,]
+  Ztr = Z[s,]
 
-  Kz = matrix(sapply(as.matrix(Dz),function(x) ker(x,hz)),n,n)
-  Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker(x,hyz)),n,n)
+  Xte = X[-s,]
+  Yte = Y[-s,]
+  Zte = Z[-s,]
+
+  hz =  bw.selection(Xtr, Ztr, p1 = 0.1, p2 = 0.5)
+  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.1, p2 = 0.5)
+
+  Dx = as.matrix(dist(Xte))
+  n1 = ncol(Dx)
+  Dz = dist(Zte)
+  Dyz = dist(cbind(Yte,Zte))
+  Kz = matrix(sapply(as.matrix(Dz),function(x) ker(x,hz)),n1,n1)
+  Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker(x,hyz)),n1,n1)
   Wz = apply(Kz,1,sum)
   Wyz = apply(Kyz,1,sum)
-  L = lapply(1:n, function(i){
-    sapply(1:n, function(j){
-      sapply(1:n, function(k){
+  L = lapply(1:n1, function(i){
+    sapply(1:n1, function(j){
+      sapply(1:n1, function(k){
         return(as.numeric(Dx[k,i]<Dx[j,i]))
       })
     })
   })
-  D = CppS(n,Kz,Wz,Kyz,Wyz,L)
+  D = CppS(n1,Kz,Wz,Kyz,Wyz,L)
 
-  Pi = replicate(R,{sapply(1:n, function(i) sample(1:n, 1, prob = Kz[i,]/Wz[i]))})
-  D1 = resample(n,Kz,Wz,Kyz,Wyz,L,Pi)
+  Pi = replicate(R,{sapply(1:n1, function(i) sample(1:n1, 1, prob = Kz[i,]/Wz[i]))})
+  D1 = resample(n1,Kz,Wz,Kyz,Wyz,L,Pi)
   pval = (sum(D1>D)+1)/(R+1)
   return(pval)
 }
