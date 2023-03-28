@@ -69,8 +69,8 @@ cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
   Yte = Y[-s,]
   Zte = Z[-s,]
 
-  hz =  bw.selection(Xtr, Ztr, p1 = 0.1, p2 = 0.5)
-  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.1, p2 = 0.5)
+  hz =  bw.selection(Xtr, Ztr, p1 = 0.01, p2 = 0.5)
+  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.01, p2 = 0.5)
 
   Dx = as.matrix(dist(Xte))
   n1 = ncol(Dx)
@@ -94,3 +94,4 @@ cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
   pval = (sum(D1>D)+1)/(R+1)
   return(pval)
 }
+

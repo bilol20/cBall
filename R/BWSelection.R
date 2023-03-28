@@ -23,7 +23,7 @@ obj.eng = function(h,X,Y){
           y = D[j,]
           m = min(y[-j])
           f = which(y==m)
-          A1 = A1 + Dx[j,f]
+          A1 = A1 + as.integer(i==f)*Dx[i,j]
         }else{
           W = K[j,]
           A1 = A1 + K[i,j]*Dx[i,j]/sum(W[-j])
@@ -45,7 +45,7 @@ obj.eng = function(h,X,Y){
               m2 = min(y2[-j])
               f2 = which(y2==m2)
 
-              A2 = A2 + as.integer(i==f1)*as.integer(j==f2)*Dx[i,j]
+              A2 = A2 + as.integer(k==f1)*as.integer(k==f2)*Dx[i,j]
           }
           if(Ind[i] == 1 & Ind[j]!=1){
             y1 = D[i,]
@@ -53,7 +53,7 @@ obj.eng = function(h,X,Y){
             f1 = which(y1==m1)
 
             W2 = K[j,]
-            A2 = A2 + as.integer(i==f1)*K[j,k]*Dx[i,j]/(sum(W2[-j]))
+            A2 = A2 + as.integer(k==f1)*Dx[i,j]*K[k,j]/sum(W2[-j])
           }
           if(Ind[j] == 1 & Ind[i]!=1){
             y1 = D[j,]
@@ -61,9 +61,9 @@ obj.eng = function(h,X,Y){
             f1 = which(y1==m1)
 
             W2 = K[i,]
-            A2 = A2 + as.integer(j==f1)*K[i,k]*Dx[i,j]/(sum(W2[-i]))
+            A2 = A2 + as.integer(k==f1)*Dx[i,j]*(K[i,k]/sum(W2[-i]))
           }
-          if(Ind[j] == 1 & Ind[i]!=1){
+          if(Ind[j]!= 1 & Ind[i]!=1){
 
             W1 = K[i,]
             W2 = K[j,]
