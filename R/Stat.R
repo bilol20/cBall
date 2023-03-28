@@ -74,10 +74,10 @@ cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
 
   Dx = as.matrix(dist(Xte))
   n1 = ncol(Dx)
-  Dz = dist(Zte)
-  Dyz = dist(cbind(Yte,Zte))
-  Kz = matrix(sapply(as.matrix(Dz),function(x) ker(x,hz)),n1,n1)
-  Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker(x,hyz)),n1,n1)
+  Dz = as.matrix(dist(Zte))
+  Dyz = as.matrix(dist(cbind(Yte,Zte)))
+  Kz = matrix(sapply(Dz,function(x) ker(x,hz)),n1,n1)
+  Kyz = matrix(sapply(Dyz,function(x) ker(x,hyz)),n1,n1)
   Wz = apply(Kz,1,sum)
   Wyz = apply(Kyz,1,sum)
   L = lapply(1:n1, function(i){
@@ -89,7 +89,19 @@ cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
   })
   D = CppS(n1,Kz,Wz,Kyz,Wyz,L)
 
-  Pi = replicate(R,{sapply(1:n1, function(i) sample(1:n1, 1, prob = Kz[i,]/Wz[i]))})
+  Pi = replicate(R,{sapply(1:n1, function(i){
+    W = Kz[i,]
+    if(length(which(W!=0))==1){
+      z = Dz[i,]
+      m = min(z[-i])
+      f = which(z==m)
+      return(f)
+    }else{
+      sample((1:n1)[-i], 1, prob = W[-i]/sum(W[-i]))}
+    }
+  )}
+  )
+
   D1 = resample(n1,Kz,Wz,Kyz,Wyz,L,Pi)
   pval = (sum(D1>D)+1)/(R+1)
   return(pval)
