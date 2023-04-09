@@ -43,7 +43,7 @@ cBD = function(X,Y,Z, hz, hyz, kernel = c("normal", "epanenchnikov")){
   return(D)
 }
 
-cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
+cBD.test = function(X, Y, Z, beta = 0.5, R=500, kernel = c("normal", "epanenchnikov")){
   if(class(X)[1]=="matrix"){
     n = nrow(X)
   }else{
@@ -60,7 +60,7 @@ cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
     }
   }
 
-  s = sample(1:n, size = as.integer(0.5*n))
+  s = sample(1:n, size = as.integer(beta*n))
   Xtr = X[s,]
   Ytr = Y[s,]
   Ztr = Z[s,]
