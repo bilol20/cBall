@@ -55,11 +55,61 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// kernel
+double kernel(double x, double h);
+RcppExport SEXP _cBall_kernel(SEXP xSEXP, SEXP hSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type h(hSEXP);
+    rcpp_result_gen = Rcpp::wrap(kernel(x, h));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fun2
+int fun2(NumericVector x);
+RcppExport SEXP _cBall_fun2(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(fun2(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// eu
+double eu(NumericVector x, NumericVector y);
+RcppExport SEXP _cBall_eu(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(eu(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dist_cpp
+NumericMatrix dist_cpp(NumericMatrix X);
+RcppExport SEXP _cBall_dist_cpp(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(dist_cpp(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_cBall_CppS", (DL_FUNC) &_cBall_CppS, 6},
     {"_cBall_rowcolsampler", (DL_FUNC) &_cBall_rowcolsampler, 2},
     {"_cBall_resample", (DL_FUNC) &_cBall_resample, 7},
+    {"_cBall_kernel", (DL_FUNC) &_cBall_kernel, 2},
+    {"_cBall_fun2", (DL_FUNC) &_cBall_fun2, 1},
+    {"_cBall_eu", (DL_FUNC) &_cBall_eu, 2},
+    {"_cBall_dist_cpp", (DL_FUNC) &_cBall_dist_cpp, 1},
     {NULL, NULL, 0}
 };
 

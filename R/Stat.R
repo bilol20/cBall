@@ -43,12 +43,9 @@ cBD = function(X,Y,Z, hz, hyz, kernel = c("normal", "epanenchnikov")){
   return(D)
 }
 
-cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
-  if(class(X)[1]=="matrix"){
-    n = nrow(X)
-  }else{
-    n = length(X)
-  }
+
+
+cBD.test = function(X, Y, Z, R=500, beta = 0.3, kernel = c("normal", "epanenchnikov")){
   if(kernel == "normal"){
     ker = ker.normal
   }else{
@@ -60,49 +57,52 @@ cBD.test = function(X, Y, Z, R=500, kernel = c("normal", "epanenchnikov")){
     }
   }
 
-  s = sample(n, size = as.integer(0.5*n))
-  Xtr = X[s,]
-  Ytr = Y[s,]
-  Ztr = Z[s,]
+  if(class(X)[1]=="matrix"){
+    n = nrow(X)
+  }else{
+    n = length(X)
+  }
 
-  Xte = X[-s,]
-  Yte = Y[-s,]
-  Zte = Z[-s,]
+  s = sample(n, size = as.integer(beta*n))
+  n1 = length(s)
+  hz =  bw.selection(X[s,], Z[s,], p1 = 0.01, p2 = 0.5)
+  hyz = bw.selection(X[s,], cbind(Y,Z)[s,], p1 = 0.01, p2 = 0.5)
 
-  hz =  bw.selection(Xtr, Ztr, p1 = 0.01, p2 = 0.5)
-  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.01, p2 = 0.5)
-
-  Dx = as.matrix(dist(Xte))
-  n1 = ncol(Dx)
-  Dz = as.matrix(dist(Zte))
-  Dyz = as.matrix(dist(cbind(Yte,Zte)))
-  Kz = matrix(sapply(Dz,function(x) ker(x,hz)),n1,n1)
-  Kyz = matrix(sapply(Dyz,function(x) ker(x,hyz)),n1,n1)
+  Dx = as.matrix(dist(X[-s,]))
+  Dz = as.matrix(dist(Z[-s,]))
+  Dyz = as.matrix(dist(cbind(Y,Z)[-s,]))
+  Kz = matrix(sapply(Dz,function(x) ker(x,hz)),(n-n1),(n-n1))
+  Kyz = matrix(sapply(Dyz,function(x) ker(x,hyz)),(n-n1),(n-n1))
   Wz = apply(Kz,1,sum)
   Wyz = apply(Kyz,1,sum)
-  L = lapply(1:n1, function(i){
-    sapply(1:n1, function(j){
-      sapply(1:n1, function(k){
+  L = lapply(1:(n-n1), function(i){
+    sapply(1:(n-n1), function(j){
+      sapply(1:(n-n1), function(k){
         return(as.numeric(Dx[k,i]<Dx[j,i]))
       })
     })
   })
-  D = CppS(n1,Kz,Wz,Kyz,Wyz,L)
 
-  Pi = replicate(R,{sapply(1:n1, function(i){
-    W = Kz[i,]
-    if(length(which(W!=0))==1){
-      z = Dz[i,]
-      m = min(z[-i])
-      f = which(z==m)
-      return(f)
-    }else{
-      sample((1:n1)[-i], 1, prob = W[-i]/sum(W[-i]))}
+  D = CppS((n-n1),Kz,Wz,Kyz,Wyz,L)
+  D1 = numeric(R)
+  for(i in 1:R){
+    Pi = sapply(1:(n-n1), function(l){
+      W = Kz[l,]
+      if(length(which(W!=0))==0){
+        z = Dz[l,]
+        m = min(z[-l])
+        f = which(z==m)
+        return(f)
+      }else{
+        return(sample(1:(n-n1), 1, prob = W/sum(W)))}
     }
-  )}
-  )
-
-  D1 = resample(n1,Kz,Wz,Kyz,Wyz,L,Pi)
+    )
+    L1 = list()
+    for(q in 1:(n-n1)){
+      L1[[q]] = L[[Pi[q]]][Pi,Pi]
+    }
+    D1[i] =  CppS((n-n1),Kz,Wz,Kyz,Wyz,L1)
+  }
   pval = (sum(D1>D)+1)/(R+1)
   return(pval)
 }

@@ -2,7 +2,7 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-double CppS(int n,NumericMatrix Kz, NumericVector Wz,
+double CppS(int n, NumericMatrix Kz, NumericVector Wz,
             NumericMatrix Kyz, NumericVector Wyz, List L){
   double T = 0;
   for(int p = 0; p<n; p++){
@@ -45,10 +45,49 @@ NumericVector resample(int n,NumericMatrix Kz, NumericVector Wz,
     NumericVector s = Pi(_,i);
     List L1(n);
     for(int j = 0; j<n;j++){
-      NumericMatrix A = L[s(j)-1];
-      L1[j] = rowcolsampler(A,s);
+      NumericMatrix A = L(s(j)-1);
+      L1(j) = rowcolsampler(A,s);
     }
     T[i] = CppS(n,Kz,Wz,Kyz,Wyz,L1);
   }
   return(T);
 }
+
+//[[Rcpp::export]]
+double kernel(double x,double h){
+  if(-h <x && x<h){
+    return(0.75*(1-x*x/(h*h)));
+  }else{
+    return(0);
+  }
+}
+
+//[[Rcpp::export]]
+int fun2(NumericVector x)
+{
+  int s = 0;
+  int n = x.length();
+  for(int i = 0; i<n; i++){
+    if(x(i)!=0)
+      s = s + 1;
+  }
+  return(s);
+}
+
+//[[Rcpp::export]]
+double eu(NumericVector x, NumericVector y){
+  return(std::sqrt(sum((x-y)*(x-y))));
+}
+
+//[[Rcpp::export]]
+NumericMatrix dist_cpp(NumericMatrix X){
+  int n = X.nrow();
+  NumericMatrix D(n,n);
+  for(int i = 0; i<n; i++){
+    for(int j = 0; j<n; j++){
+      D(i,j) = eu(X(i,_),X(j,_));
+    }
+  }
+  return(D);
+}
+

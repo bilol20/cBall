@@ -13,3 +13,19 @@ resample <- function(n, Kz, Wz, Kyz, Wyz, L, Pi) {
     .Call(`_cBall_resample`, n, Kz, Wz, Kyz, Wyz, L, Pi)
 }
 
+kernel <- function(x, h) {
+    .Call(`_cBall_kernel`, x, h)
+}
+
+fun2 <- function(x) {
+    .Call(`_cBall_fun2`, x)
+}
+
+eu <- function(x, y) {
+    .Call(`_cBall_eu`, x, y)
+}
+
+dist_cpp <- function(X) {
+    .Call(`_cBall_dist_cpp`, X)
+}
+

@@ -9,7 +9,11 @@ kernel = function(x,h){
 fun2 = function(x) length(which(x!=0))
 
 obj.eng = function(h,X,Y){
-  n = nrow(X)
+  if(class(X)[1]=="numeric"){
+    n = length(X)
+  }else{
+    n = nrow(X)
+  }
   Dx = as.matrix(dist(X))
   D = as.matrix(dist(Y))
   K = matrix(sapply(D,function(x) kernel(x,h)),n,n)
