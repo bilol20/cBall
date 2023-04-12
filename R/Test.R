@@ -97,8 +97,8 @@ cBD.test = function(X, Y, Z, beta=0.5, R=500, kernel = c("normal", "epanenchniko
 
   n1 = length(s)
   n2 = n-n1
-  hz = bw.selection(Xtr, Ztr, p1 = 0.01, p2 = 0.5)
-  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.01, p2 = 0.5)
+  hz = bw.selection(Xtr, Ztr, p1 = 0.1, p2 = 0.5)
+  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.1, p2 = 0.5)
 
   Dx = as.matrix(dist(Xte))
   Dz = as.matrix(dist(Zte))
