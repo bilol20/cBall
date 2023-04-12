@@ -85,11 +85,12 @@ obj.eng = function(h,X,Y){
 
 bw.selection = function(X,Y,p1,p2){
   D = dist(Y)
+  d = ncol(Y)
   if(p1>0){
-    q = quantile(D,prob = c(p1,p2))
+    q = quantile(D,prob = c(p1,p2))*n^{-1/(d+4)}
     res = optimize(obj.eng,interval = q, X = X,Y= Y)
   }else{
-    q = quantile(D,prob = c(p2))
+    q = quantile(D,prob = c(p2))*n^{-1/(d+4)}
     res = optimize(obj.eng,interval = c(0,q), X = X,Y= Y)
   }
   return(res$minimum)
