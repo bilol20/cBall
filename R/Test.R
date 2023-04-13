@@ -67,8 +67,8 @@ stat = function(n,Dz,hz,Dyz,hyz,L, kernel = c("normal", "epanenchnikov")){
     }
 
 
-    for(i in 1:n){
-      for(j in 1:n){
+    for(i in (1:n)[-p]){
+      for(j in (1:n)[-p]){
         T = T + sum((W1-W2)*L[[i]][,j])^2*(W1[i]*W1[j]+W2[i]*W2[j])
       }
     }
@@ -76,7 +76,6 @@ stat = function(n,Dz,hz,Dyz,hyz,L, kernel = c("normal", "epanenchnikov")){
   return(T/n)
 }
 
-#calibration part is not clear
 
 #calibration part is not clear
 cBD.test = function(X, Y, Z, beta=0.5, R=500, kernel = c("normal", "epanenchnikov")){
@@ -97,8 +96,8 @@ cBD.test = function(X, Y, Z, beta=0.5, R=500, kernel = c("normal", "epanenchniko
 
   n1 = length(s)
   n2 = n-n1
-  hz = bw.selection(Xtr, Ztr, p1 = 0.1, p2 = 0.5)
-  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.1, p2 = 0.5)
+  hz = bw.selection(Xtr, Ztr, p1 = 0.05, p2 = 0.5)
+  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.05, p2 = 0.5)
 
   Dx = as.matrix(dist(Xte))
   Dz = as.matrix(dist(Zte))
