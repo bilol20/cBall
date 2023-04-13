@@ -1,47 +1,47 @@
-ker.epa = function(x,s)
-{
-  if(-s<x & x<s){
-    return(3/4*(1-x^2/s^2))
-  }else{
-    return(0)
-  }
-}
+#ker.epa = function(x,s)
+#{
+#  if(-s<x & x<s){
+#    return(3/4*(1-x^2/s^2))
+#  }else{
+#    return(0)
+#  }
+#}
 
-ker.normal = function(x,s)
-{
-  return(dnorm(x,0,s))
-}
+#ker.normal = function(x,s)
+#{
+#  return(dnorm(x,0,s))
+#}
 
 
 
-cBD = function(X,Y,Z, hz, hyz, kernel = c("normal", "epanenchnikov")){
-  n = nrow(X)
-  Dx = as.matrix(dist(X))
-  Dz = dist(Z)
-  Dyz = dist(cbind(Y,Z))
-  if(kernel == "normal"){
-    ker = ker.normal
-  }else{
-    if(kernel == "epanenchnikov"){
-      ker = ker.epa
-    }else{
-      print("Please specify the kernel correctly.")
-    }
-  }
-  Kz = matrix(sapply(as.matrix(Dz),function(x) ker(x,hz)),n,n)
-  Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker(x,hyz)),n,n)
-  Wz = apply(Kz,1,sum)
-  Wyz = apply(Kyz,1,sum)
-  L = lapply(1:n, function(i){
-    sapply(1:n, function(j){
-      sapply(1:n, function(k){
-        return(as.numeric(Dx[k,i]<Dx[j,i]))
-      })
-    })
-  })
-  D = CppS(n,Kz,Wz,Kyz,Wyz,L)
-  return(D)
-}
+#cBD = function(X,Y,Z, hz, hyz, kernel = c("normal", "epanenchnikov")){
+#  n = nrow(X)
+#  Dx = as.matrix(dist(X))
+#  Dz = dist(Z)
+#  Dyz = dist(cbind(Y,Z))
+#  if(kernel == "normal"){
+#    ker = ker.normal
+#  }else{
+#    if(kernel == "epanenchnikov"){
+#      ker = ker.epa
+#    }else{
+#      print("Please specify the kernel correctly.")
+#    }
+# }
+#  Kz = matrix(sapply(as.matrix(Dz),function(x) ker(x,hz)),n,n)
+ # Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker(x,hyz)),n,n)
+#  Wz = apply(Kz,1,sum)
+#  Wyz = apply(Kyz,1,sum)
+#  L = lapply(1:n, function(i){
+#    sapply(1:n, function(j){
+#      sapply(1:n, function(k){
+#        return(as.numeric(Dx[k,i]<Dx[j,i]))
+#      })
+#    })
+#  })
+ # D = CppS(n,Kz,Wz,Kyz,Wyz,L)
+#  return(D)
+#}
 
 #cBD.test = function(X, Y, Z, beta = 0.5, R=500, kernel = c("normal", "epanenchnikov")){
 #  if(class(X)[1]=="matrix"){
