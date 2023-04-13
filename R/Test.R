@@ -67,8 +67,8 @@ stat = function(n,Dz,hz,Dyz,hyz,L, kernel = c("normal", "epanenchnikov")){
     }
 
 
-    for(i in (1:n)[-p]){
-      for(j in (1:n)[-p]){
+    for(i in (1:n)){
+      for(j in (1:n)){
         T = T + sum((W1-W2)*L[[i]][,j])^2*(W1[i]*W1[j]+W2[i]*W2[j])
       }
     }
