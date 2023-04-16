@@ -67,7 +67,7 @@ stat = function(n,Dz,hz,Dyz,hyz,L){
 }
 
 #calibration part is not clear
-cBD.test = function(X, Y, Z, R=500){
+cBD.test = function(X, Y, Z, R=500, q = c(0.9,0.9,0.5)){
   n = nrow(X)
   dz = ncol(Z)
   dy = ncol(Y)
@@ -76,8 +76,8 @@ cBD.test = function(X, Y, Z, R=500){
   Dx = as.matrix(dist(X))
   Dz = (dist(Z))
   Dyz = (dist(cbind(Y,Z)))
-  hz = median(Dz)*n^(-1/(dz+2))
-  hyz =median(Dyz)*n^(-1/(dyz+2))
+  hz = quantile(Dz,q[1])*n^(-1/(dz+2))
+  hyz = quantile(Dyz,q[2])*n^(-1/(dyz+2))
   Kz = matrix(sapply(as.matrix(Dz),function(x) ker.epa(x,hz)),n,n)
   Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker.epa(x,hyz)),n,n)
   Wz = apply(Kz,1,sum)
@@ -91,7 +91,7 @@ cBD.test = function(X, Y, Z, R=500){
   D = stat(n,as.matrix(Dz),hz,as.matrix(Dyz),hyz,L)
 
 
-  hz1 =  quantile(Dz, 0.1)* n^(-1/(dz+2))
+  hz1 =  quantile(Dz, q[3])* n^(-1/(dz+2))
   Kz1 = matrix(sapply(as.matrix(Dz),function(x) ker.epa(x,hz1)),n,n)
   Wz1 = apply(Kz1,1,sum)
 
