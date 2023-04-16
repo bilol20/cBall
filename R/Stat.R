@@ -13,97 +13,107 @@ ker.normal = function(x,s)
 }
 
 
-
-cBD = function(X,Y,Z, hz, hyz, kernel = c("normal", "epanenchnikov")){
-  n = nrow(X)
-  Dx = as.matrix(dist(X))
-  Dz = dist(Z)
-  Dyz = dist(cbind(Y,Z))
-  if(kernel == "normal"){
-    ker = ker.normal
-  }else{
-    if(kernel == "epanenchnikov"){
-      ker = ker.epa
-    }else{
-      print("Please specify the kernel correctly.")
-    }
-  }
-  Kz = matrix(sapply(as.matrix(Dz),function(x) ker(x,hz)),n,n)
-  Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker(x,hyz)),n,n)
+#Stat code correct
+stat = function(n,Dz,hz,Dyz,hyz,L){
+  Kz = matrix(sapply(as.matrix(Dz),function(x) ker.epa(x,hz)),n,n)
+  Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker.epa(x,hyz)),n,n)
   Wz = apply(Kz,1,sum)
   Wyz = apply(Kyz,1,sum)
-  L = lapply(1:n, function(i){
-    sapply(1:n, function(j){
-      sapply(1:n, function(k){
-        return(as.numeric(Dx[k,i]<Dx[j,i]))
-      })
+  T = lapply(1:n, function(p){
+    W1 = rep(0,n)
+    W2 = rep(0,n)
+    if(length(which(Kz[p,]!=0))>1&length(which(Kyz[p,]!=0))>1){
+      W1 = Kz[p,]/Wz[p]
+      W2 = Kyz[p,]/Wyz[p]
+    }
+    if(length(which(Kz[p,]!=0))==1&length(which(Kyz[p,]!=0))>1){
+      x = Dz[p,]
+      x1 = x[-p]
+      m = min(x1)
+      ff = which(x==m)
+      W1[ff] = 1
+      W2 = Kyz[p,]/Wyz[p]
+    }
+    if(length(which(Kz[p,]!=0))>1&length(which(Kyz[p,]!=0))==1){
+      x = Dyz[p,]
+      x1 = x[-p]
+      m = min(x1)
+      ff = which(x==m)
+      W2[ff] = 1
+      W1 = Kz[p,]/Wz[p]
+    }
+    if(length(which(Kz[p,]!=0))==1&length(which(Kyz[p,]!=0))==1){
+      x = Dz[p,]
+      x1 = x[-p]
+      m = min(x1)
+      ff = which(x==m)
+      W1[ff] = 1
+      x = Dyz[p,]
+      x1 = x[-p]
+      m = min(x1)
+      ff = which(x==m)
+      W2[ff] = 1
+    }
+
+    S1 = W1%*%t(W1)
+    S2 = W2%*%t(W2)
+    Q = lapply(1:n, function(i){
+      S = (t(W1-W2)%*%L[[i]])^2
+      return(sum(S*S1[i,]) + sum(S*S2[i,]))
     })
+    return(sum(unlist(Q)))
   })
-  D = CppS(n,Kz,Wz,Kyz,Wyz,L)
-  return(D)
+  return(sum(unlist(T)/n))
 }
 
-#cBD.test = function(X, Y, Z, beta = 0.5, R=500, kernel = c("normal", "epanenchnikov")){
-#  if(class(X)[1]=="matrix"){
-#    n = nrow(X)
-#  }else{
-#    n = length(X)
-#  }
-#  if(kernel == "normal"){
-#    ker = ker.normal
-#  }else{
-#    if(kernel == "epanenchnikov"){
-#      ker = ker.epa
-#    }else{
-#      print("Please specify the kernel correctly.")
-#      exit
-#    }
-#  }
+#calibration part is not clear
+cBD.test = function(X, Y, Z, R=500){
+  n = nrow(X)
+  dz = ncol(Z)
+  dy = ncol(Y)
+  dyz = dy+dz
 
-#  s = sample(1:n, size = as.integer(beta*n))
-#  Xtr = X[s,]
-#  Ytr = Y[s,]
-#  Ztr = Z[s,]
+  Dx = as.matrix(dist(X))
+  Dz = (dist(Z))
+  Dyz = (dist(cbind(Y,Z)))
+  hz = median(Dz)*n^(-1/(dz+2))
+  hyz =median(Dyz)*n^(-1/(dyz+2))
+  Kz = matrix(sapply(as.matrix(Dz),function(x) ker.epa(x,hz)),n,n)
+  Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker.epa(x,hyz)),n,n)
+  Wz = apply(Kz,1,sum)
+  Wyz = apply(Kyz,1,sum)
 
-#  Xte = X[-s,]
-#  Yte = Y[-s,]
-#  Zte = Z[-s,]
-
-#  n1 = length(s)
-#  n2 = n-n1
-#  hz = bw.selection(Xtr, Ztr, p1 = 0.4, p2 = 0.9)
-#  hyz = bw.selection(Xtr, cbind(Ytr,Ztr), p1 = 0.3, p2 = 0.7)
-
-#  Dx = as.matrix(dist(Xte))
-#  Dz = dist(Zte)
-#  Dyz = dist(cbind(Yte,Zte))
-  #hz =  quantile(Dz,prob = 0.5)
-  #hyz = quantile(Dyz,prob = 0.5)
-
-#  Kz = matrix(sapply(as.matrix(Dz),function(x) ker(x,hz)),n2,n2)
-#  Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker(x,hyz)),n2,n2)
-#  Wz = apply(Kz,1,sum)
-#  Wyz = apply(Kyz,1,sum)
-#  L = lapply(1:n2, function(i){
-#    sapply(1:n2, function(j){
-#      sapply(1:n2, function(k){
-#        return(as.numeric(Dx[k,i]<Dx[j,i]))
-#      })
-#    })
-#  })
-#  D = CppS(n2,Kz,Wz,Kyz,Wyz,L)
-
-#  hz1 =  bw.selection(Xtr, Ztr, p1 = 0.05, p2 = 0.4)
-#  Kz1 = matrix(sapply(as.matrix(Dz),function(x) ker(x,hz1)),n2,n2)
-#  Wz1 = apply(Kz1,1,sum)
+  L = lapply(1:n, function(i){
+    sapply(1:n, function(j){
+      return(as.numeric(Dx[,i]<Dx[j,i]))
+    })
+  })
+  D = stat(n,as.matrix(Dz),hz,as.matrix(Dyz),hyz,L)
 
 
-#  Pi = replicate(R,{sapply(1:n2, function(i){
-#    W = Kz1[i,]
-#    sample((1:n2), 1, prob = W/sum(W))}
-#  )}
-#  )
-#  D1 = resample(n2,Kz,Wz,Kyz,Wyz,L,Pi)
-#  pval = (sum(D1>D)+1)/(R+1)
-#  return(pval)
-#}
+  hz1 =  quantile(Dz, 0.1)* n^(-1/(dz+2))
+  Kz1 = matrix(sapply(as.matrix(Dz),function(x) ker.epa(x,hz1)),n,n)
+  Wz1 = apply(Kz1,1,sum)
+
+
+  Pi = replicate(R,{sapply(1:n, function(i){
+    W = Kz1[i,]
+    sample((1:n), 1, prob = W/sum(W))}
+  )}
+  )
+  D1 = numeric(R)
+  for(i in 1:R){
+    s = Pi[,i]
+    X1 = X[s,]
+    Dx1 = as.matrix(dist(X1))
+    L1 = lapply(1:n, function(i){
+      sapply(1:n, function(j){
+        return(as.numeric(Dx1[,i]<Dx1[j,i]))
+      })
+    })
+    D1[i] = stat(n,as.matrix(Dz),hz,as.matrix(Dyz),hyz,L1)
+  }
+  pval = (sum(D1>D)+1)/(R+1)
+  return(pval)
+}
+
