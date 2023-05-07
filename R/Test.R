@@ -66,8 +66,7 @@ stat = function(n,Dz,hz,Dyz,hyz,L){
   return(sum(unlist(T)/n))
 }
 
-#calibration part is not clear
-cBD.test = function(X, Y, Z, R=500, q = c(0.9,0.9,0.5)){
+cBD.test = function(X, Y, Z, R=500){
   n = nrow(X)
   dz = ncol(Z)
   dy = ncol(Y)
@@ -76,8 +75,8 @@ cBD.test = function(X, Y, Z, R=500, q = c(0.9,0.9,0.5)){
   Dx = as.matrix(dist(X))
   Dz = (dist(Z))
   Dyz = (dist(cbind(Y,Z)))
-  hz = quantile(Dz,q[1])*n^(-1/(dz+2))
-  hyz = quantile(Dyz,q[2])*n^(-1/(dyz+2))
+  hz = quantile(Dz,0.5)*n^(-1/(dz+2))
+  hyz = quantile(Dyz,0.5)*n^(-1/(dyz+2))
   Kz = matrix(sapply(as.matrix(Dz),function(x) ker.epa(x,hz)),n,n)
   Kyz = matrix(sapply(as.matrix(Dyz),function(x) ker.epa(x,hyz)),n,n)
   Wz = apply(Kz,1,sum)
@@ -91,14 +90,15 @@ cBD.test = function(X, Y, Z, R=500, q = c(0.9,0.9,0.5)){
   D = stat(n,as.matrix(Dz),hz,as.matrix(Dyz),hyz,L)
 
 
-  hz1 =  quantile(Dz, q[3])* n^(-1/(dz+2))
-  Kz1 = matrix(sapply(as.matrix(Dz),function(x) ker.epa(x,hz1)),n,n)
+  hz1 = quantile(Dz,0.5)*n^(-1/3)
+  Kz1 = matrix(sapply(as.matrix(Dz),function(x) ker.epa(x,hz)),n,n)
   Wz1 = apply(Kz1,1,sum)
 
 
   Pi = replicate(R,{sapply(1:n, function(i){
     W = Kz1[i,]
-    sample((1:n), 1, prob = W/sum(W))}
+    return(sample((1:n), 1, prob = W/sum(W)))
+    }
   )}
   )
   D1 = numeric(R)
